@@ -12,7 +12,7 @@ def serialize_post(post):
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,
-        'tags': [serialize_tag(tag) for tag in post.tags.all().popular()],
+        'tags': [serialize_tag(tag) for tag in post.tags.all()],
         'first_tag_title': post.tags.all()[0].title,
     }
 
@@ -81,12 +81,12 @@ def post_detail(request, slug):
 
 
 def tag_filter(request, tag_title):
-    tag = get_object_or_404(Tag,title=tag_title)
+    tag = get_object_or_404(Tag.objects.popular(),title=tag_title)
     most_popular_tags = Tag.objects.popular()[:5]
 
     most_popular_posts = Post.objects.popular().prefetch_author_and_tags().fetch_with_comments_count()[:5]
 
-    related_posts = tag.posts.fetch_with_comments_count()[:20]
+    related_posts = tag.posts.prefetch_author_and_tags().fetch_with_comments_count()[:20]
 
     context = {
         'tag': tag.title,
